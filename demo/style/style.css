@@ -1,0 +1,15 @@
+/* Put your css in here */
+
+body {
+	margin: 0;
+	padding: 0;
+}
+
+h1 {
+  color: red;
+}
+
+#editor {
+	height: 100%;
+	width: 100%;
+}
