@@ -23,7 +23,8 @@ var rhymeCompleter = {
         }
         console.log(prefix)
 
-        socket.emit('suggestion', prefix)
+
+        socket.emit('suggestion', {prefix: prefix, topic: 'business'})
         socket.on('suggestion', function(wordList) {
             console.log(wordList);
             callback(null, wordList.map(function(ea) {
@@ -36,20 +37,6 @@ var rhymeCompleter = {
             }));
         })
 
-        // $.getJSON(
-        //     "http://bar:3000/suggestion/" + prefix,
-        //     function(wordList) {
-        //         console.log(wordList)
-        //             // wordList like [{"word":"flow","freq":24,"score":300,"flags":"bc","syllables":"1"}]
-        //         callback(null, wordList.map(function(ea) {
-        //             return {
-        //                 name: ea.Word,
-        //                 value: ea.Word,
-        //                 score: ea.Count,
-        //                 meta: "tech"
-        //             }
-        //         }));
-        //     })
     }
 }
 langTools.addCompleter(rhymeCompleter);
