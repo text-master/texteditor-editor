@@ -21,31 +21,59 @@ document.getElementById('editor').style.fontSize = '16px';
 // uses http://rhymebrain.com/api.html
 var rhymeCompleter = {
     getCompletions: function(editor, session, pos, prefix, callback) {
+        console.log(prefix.length);
         if (prefix.length === 0) {
-            callback(null, []);
-            return
+
+            var regex = /\w+/g;
+            var para = editor.getValue();
+            var words = para.match(regex)
+            var preword = words[words.length - 1];
+            // var preword = editor.getValue().split()
+
+            // return;
+            socket.emit('follower', {
+                preword: preword.toLowerCase(),
+                topic: topic
+            })
+
+            socket.on('follower', function(wordList) {
+                console.log(wordList);
+                // var isUpperCase = (prefix.charAt(0) == prefix.charAt(0).toUpperCase());
+
+                callback(null, wordList.map(function(ea) {
+                    return {
+                        name: ea.Follower,
+                        value: ea.Follower,
+                        score: ea.Count,
+                        meta: topic
+                    }
+                }));
+            })
+
+            // return;
         }
         // console.log(prefix)
+        else {
+            socket.emit('suggestion', {
+                prefix: prefix.toLowerCase(),
+                topic: topic
+            })
+            socket.on('suggestion', function(wordList) {
+                console.log(wordList);
+                var isUpperCase = (prefix.charAt(0) == prefix.charAt(0).toUpperCase());
 
+                callback(null, wordList.map(function(ea) {
+                    return {
+                        name: ea.Word,
+                        value: isUpperCase ? capitalizeFirstLetter(ea.Word) : ea.Word,
+                        score: ea.Count,
+                        meta: topic
+                    }
+                }));
+            })
 
+        }
 
-        socket.emit('suggestion', {
-            prefix: prefix.toLowerCase(),
-            topic: topic
-        })
-        socket.on('suggestion', function(wordList) {
-            // console.log(wordList);
-            var isUpperCase = (prefix.charAt(0) == prefix.charAt(0).toUpperCase());
-
-            callback(null, wordList.map(function(ea) {
-                return {
-                    name: ea.Word,
-                    value: isUpperCase ? capitalizeFirstLetter(ea.Word) : ea.Word,
-                    score: ea.Count,
-                    meta: topic
-                }
-            }));
-        })
 
     }
 }
