@@ -7,8 +7,11 @@ const socket = io('http://localhost:3000');
 var langTools = ace.require("ace/ext/language_tools");
 var editor = ace.edit("editor");
 var topic = ''
-// editor.setTheme("ace/theme/twilight");
+    // editor.setTheme("ace/theme/twilight");
 
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 
 editor.setOptions({
@@ -25,16 +28,19 @@ var rhymeCompleter = {
         // console.log(prefix)
 
 
+
         socket.emit('suggestion', {
-            prefix: prefix,
+            prefix: prefix.toLowerCase(),
             topic: topic
         })
         socket.on('suggestion', function(wordList) {
             // console.log(wordList);
+            var isUpperCase = (prefix.charAt(0) == prefix.charAt(0).toUpperCase());
+
             callback(null, wordList.map(function(ea) {
                 return {
                     name: ea.Word,
-                    value: ea.Word,
+                    value: isUpperCase ? capitalizeFirstLetter(ea.Word) : ea.Word,
                     score: ea.Count,
                     meta: topic
                 }
@@ -68,60 +74,6 @@ document.body.addEventListener('keydown', function(e) {
                 .catch(function(error) {
                     console.log(error);
                 });
-
-            // const myApi = axios.create({
-            //     baseURL: 'http://localhost:8080/classifier',
-            //     timeout: 10000,
-            //     transformRequest: [(data) => JSON.stringify(data)],
-            //     headers: {
-            //         'Accept': 'application/json',
-            //         'Content-Type': 'application/json',
-            //     }
-            // });
-
-            // myApi.post('http://localhost:8080/classifier', {
-            //         sentence: editor.getValue()
-            //     })
-            //     .then(function(response) {
-            //         console.log(response);
-            //     })
-            //     .catch(function(error) {
-            //         console.log(error);
-            //     });
-
-
-            // axios({
-            //         method: 'post',
-            //         url: 'http://localhost:8080/classifier',
-            //         data: {
-            //             sentence: editor.getValue()
-            //         },
-            //         timeout: 10000,
-            //         transformRequest: [(data) => {
-            //             return JSON.stringify(data)
-            //         }],
-            //         headers: {
-            //             'Accept': 'application/json',
-            //             'Content-Type': 'application/json',
-            //         }
-            //     })
-            //     .then(function(response) {
-            //         console.log(response);
-            //     })
-            //     .catch(function(error) {
-            //         console.log(error);
-            //     });
-
-            // var xmlhttp = new XMLHttpRequest(); // new HttpRequest instance 
-            // xmlhttp.open("POST", "http://localhost:8080/classifier");
-            // // xmlhttp.setRequestHeader("Content-Type", "application/json");
-            // // xmlhttp.send(JSON.stringify({
-            // //     sentence: editor.getValue()
-            // // }));
-            // xmlhttp.send({setence: editor.getValue()});
-
-
-
         }
     })
     /*editor.on('changeSession', function(e) {
