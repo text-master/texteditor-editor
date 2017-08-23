@@ -77,6 +77,7 @@ var rhymeCompleter = {
 
     }
 }
+
 langTools.addCompleter(rhymeCompleter);
 
 
@@ -91,7 +92,7 @@ langTools.addCompleter(rhymeCompleter);
 
 
 document.body.addEventListener('keydown', function(e) {
-        if (e.keyCode === 0 || e.keyCode === 32) {
+        if (e.keyCode === 0 || e.keyCode === 32 || e.keyCode === 13) {
             // e.preventDefault()
 
             axios.post('http://localhost:8080/classifier', editor.getValue())
