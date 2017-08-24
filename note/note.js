@@ -2,7 +2,7 @@ const socket = io('http://localhost:3000');
 var topic = 'society';
 
 function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 
@@ -29,42 +29,63 @@ $(document).ready(function() {
 					// console.log(wordList);
 					var words = wordList.map(function(ea) {
 
-						return isUpperCase ? capitalizeFirstLetter(ea.Word) : ea.Word
-					})
-					// console.log(words);
+							return isUpperCase ? capitalizeFirstLetter(ea.Word) : ea.Word
+						})
+						// console.log(words);
 					callback($.grep(words, function(item) {
 						return item.startsWith(keyword);
 					}));
 				})
 
-				// console.log(this.words);
-
-				// callback($.grep(this.words, function(item) {
-				// 	return item.startsWith(keyword);
-				// }));
 			},
-			// template: function(item) {
-			
-			// 	return "<p>" + item + " " + "<i>" + topic + "</i>" + "</p>";
-			// },
+
 		}
 	});
 
 	document.body.addEventListener('keydown', function(e) {
-        if (e.keyCode === 0 || e.keyCode === 32 || e.keyCode === 13) {
-            // e.preventDefault()
+		var text = $(".note-editable").text();
+		if (e.keyCode === 32 || e.keyCode === 13) {
+			// e.preventDefault()
 
-            // console.log($("#summernote").code());
+			// console.log($("#summernote").code());
 
-            axios.post('http://localhost:8080/classifier', $(".note-editable").text())
-                .then(function(response) {
-                    console.log(response.data);
-                    topic = response.data;
-                })
-                .catch(function(error) {
-                    console.log(error);
-                });
-        }
-    })
+
+
+			// console.log(lastWord);
+
+			axios.post('http://localhost:8080/classifier', text)
+				.then(function(response) {
+					// console.log(response.data);
+					topic = response.data;
+				})
+				.catch(function(error) {
+					console.log(error);
+				});
+		}
+
+		if ((event.ctrlKey || event.metaKey) && event.which == 32) {
+
+			var regex = /\w+/g;
+			var words = text.match(regex)
+			var lastWord = words[words.length - 1];
+
+			// console.log(lastWord);
+
+			socket.emit('follower', {
+				preword: lastWord.toLowerCase(),
+				topic: topic
+			})
+
+
+
+		}
+	})
 });
 
+
+// Putting the socket receive function outside of the document event works!!!
+socket.on('follower', function(word) {
+	if(word) {
+		$('#summernote').summernote('insertText', word[0].Follower);
+	}
+})
