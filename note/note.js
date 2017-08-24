@@ -1,5 +1,11 @@
 const socket = io('http://localhost:3000');
 var topic = 'society';
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+
 $(document).ready(function() {
 	$('#summernote').summernote({
 		height: 300, // set editor height
@@ -11,6 +17,8 @@ $(document).ready(function() {
 			match: /\b(\w{1,})$/,
 			search: function(keyword, callback) {
 
+				var isUpperCase = (keyword.charAt(0) == keyword.charAt(0).toUpperCase());
+
 				socket.emit('suggestion', {
 					prefix: keyword.toLowerCase(),
 					topic: topic
@@ -21,7 +29,7 @@ $(document).ready(function() {
 					// console.log(wordList);
 					var words = wordList.map(function(ea) {
 
-						return ea.Word
+						return isUpperCase ? capitalizeFirstLetter(ea.Word) : ea.Word
 					})
 					// console.log(words);
 					callback($.grep(words, function(item) {
@@ -35,10 +43,10 @@ $(document).ready(function() {
 				// 	return item.startsWith(keyword);
 				// }));
 			},
-			template: function(item) {
+			// template: function(item) {
 			
-				return "<p>" + item + " " + "<i>" + topic + "</i>" + "</p>";
-			},
+			// 	return "<p>" + item + " " + "<i>" + topic + "</i>" + "</p>";
+			// },
 		}
 	});
 
