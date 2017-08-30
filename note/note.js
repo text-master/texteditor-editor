@@ -7,6 +7,34 @@ function capitalizeFirstLetter(string) {
 
 
 $(document).ready(function() {
+	var HelloButton = function(context) {
+		var ui = $.summernote.ui;
+
+		// create button
+		var button = ui.button({
+			contents: '<i class="fa fa-child"/> Summarize',
+			tooltip: 'Summarize',
+			click: function() {
+				// invoke insertText method with 'hello' on editor module.
+				var html = $('#summernote').summernote('code');
+				socket.emit('summarize', html);
+				// console.log($(".note-editable").text());	
+
+				socket.on('summarize', function(summary) {
+					console.log(summary);
+				})
+
+
+				$('#myModal').modal('show');
+				// context.invoke('editor.insertText', 'hello');
+			}
+		});
+
+		return button.render(); // return button as jquery object
+	}
+
+
+
 	$('#summernote').summernote({
 		height: 300, // set editor height
 		// minHeight: null, // set minimum height of editor
@@ -39,8 +67,28 @@ $(document).ready(function() {
 
 			},
 
+		},
+		toolbar: [
+			['style', ['style']],
+			['font', ['bold', 'italic', 'underline', 'clear']],
+			['fontname', ['fontname']],
+			['color', ['color']],
+			['para', ['ul', 'ol', 'paragraph']],
+			['height', ['height']],
+			['table', ['table']],
+			['insert', ['media', 'link', 'hr']],
+			['view', ['fullscreen', 'codeview']],
+			['mybutton', ['hello']],
+			['help', ['help']],
+
+		],
+
+		buttons: {
+			hello: HelloButton
 		}
 	});
+
+	$("#summernote").summernote("fullscreen.toggle");
 
 	document.body.addEventListener('keydown', function(e) {
 		var text = $(".note-editable").text();
@@ -85,7 +133,7 @@ $(document).ready(function() {
 
 // Putting the socket receive function outside of the document event works!!!
 socket.on('follower', function(word) {
-	if(word) {
+	if (word) {
 		$('#summernote').summernote('insertText', word[0].Follower);
 	}
 })
