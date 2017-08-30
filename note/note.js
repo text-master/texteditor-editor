@@ -20,9 +20,6 @@ $(document).ready(function() {
 				socket.emit('summarize', html);
 				// console.log($(".note-editable").text());	
 
-				socket.on('summarize', function(summary) {
-					console.log(summary);
-				})
 
 
 				$('#myModal').modal('show');
@@ -136,4 +133,9 @@ socket.on('follower', function(word) {
 	if (word) {
 		$('#summernote').summernote('insertText', word[0].Follower);
 	}
+})
+
+socket.on('summarize', function(summary) {
+	console.log(summary);
+	$("#summary").append(summary);
 })
