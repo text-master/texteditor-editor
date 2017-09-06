@@ -135,7 +135,10 @@ socket.on('follower', function(word) {
 	}
 })
 
-socket.on('summarize', function(summary) {
-	console.log(summary);
-	$("#summary").append(summary);
+socket.on('summarize', function(data) {
+	console.log(data);
+	$("#summary").html(data.summary);
+	$("#contentLength").text(data.contentLength);
+	$("#summaryLength").text(data.summaryLength);
+	$("#summaryRatio").text(data.summaryRatio.toFixed(2) + '%')
 })

@@ -9,6 +9,7 @@
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
 		<script src="http://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script>
 		<link rel="stylesheet" href="dist/summernote.css">
+		<link rel="stylesheet" href="style.css">
 		<script src="dist/summernote.js"></script>
 	</head>
 	<body>
@@ -24,8 +25,14 @@
 		          <span aria-hidden="true">&times;</span>
 		        </button>
 		      </div>
-		      <div class="modal-body" id="summary">
-		        
+		      <div class="modal-body">
+		        <div id="summary"></div>
+		        <hr>
+		        <div class="summary_info">
+		        	<p>Original Length: <span id="contentLength"></span></p>
+		        	<p>Summary Length: <span id="summaryLength"></span></p>
+		        	<p>Summary Ratio: <span id="summaryRatio"></span></p>
+		        </div>
 		      </div>
 		      <div class="modal-footer">
 		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
