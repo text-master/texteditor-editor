@@ -6,3 +6,11 @@
 	color: #fff;
 	margin: 0;
 }
+
+.keywords_conatainer {
+	display: flex;
+}
+
+.summary_info .keyWords span {
+	margin-left: 10px;
+}

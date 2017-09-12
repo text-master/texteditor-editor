@@ -136,9 +136,14 @@ socket.on('follower', function(word) {
 })
 
 socket.on('summarize', function(data) {
-	console.log(data);
+	console.log(data.keyWords);
 	$("#summary").html(data.summary);
 	$("#contentLength").text(data.contentLength);
 	$("#summaryLength").text(data.summaryLength);
 	$("#summaryRatio").text(data.summaryRatio.toFixed(2) + '%')
+	$("#keyWords").html("");
+
+	data.keyWords.forEach(function(keyWord) {
+		$("#keyWords").append("<span>#" + keyWord + "</span>")		
+	})
 })
