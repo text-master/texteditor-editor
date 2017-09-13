@@ -86,9 +86,18 @@ $(document).ready(function() {
 	});
 
 	$("#summernote").summernote("fullscreen.toggle");
+	$('#summernote').summernote('code', localStorage.getItem('code'))
 
+	// summernote.change
+	$('#summernote').on('summernote.change', function(we, contents, $editable) {
+	  	var code = $('#summernote').summernote('code');
+		localStorage.setItem("code", code);
+	});
+	
 	document.body.addEventListener('keydown', function(e) {
 		var text = $(".note-editable").text();
+		
+
 		if (e.keyCode === 32 || e.keyCode === 13) {
 			// e.preventDefault()
 
