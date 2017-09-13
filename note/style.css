@@ -11,6 +11,19 @@
 	display: flex;
 }
 
+.summary_info .keyword_text {
+	margin-top: 10px;
+    width: 15%;
+} 
+.summary_info .keyWords {
+	display: flex;
+    flex-wrap: wrap;
+}
+
+
 .summary_info .keyWords span {
 	margin-left: 10px;
+	margin-top: 5px;
+	padding: 5px;
+	border: 1px solid;
 }

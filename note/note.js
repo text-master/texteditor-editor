@@ -93,7 +93,7 @@ $(document).ready(function() {
 	  	var code = $('#summernote').summernote('code');
 		localStorage.setItem("code", code);
 	});
-	
+
 	document.body.addEventListener('keydown', function(e) {
 		var text = $(".note-editable").text();
 		
@@ -153,6 +153,6 @@ socket.on('summarize', function(data) {
 	$("#keyWords").html("");
 
 	data.keyWords.forEach(function(keyWord) {
-		$("#keyWords").append("<span>#" + keyWord + "</span>")		
+		$("#keyWords").append("<span>" + keyWord + "</span>")		
 	})
 })
