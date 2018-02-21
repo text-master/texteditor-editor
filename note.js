@@ -2,157 +2,143 @@ const socket = io('http://localhost:3000');
 var topic = 'society';
 
 function capitalizeFirstLetter(string) {
-	return string.charAt(0).toUpperCase() + string.slice(1);
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-
 $(document).ready(function() {
-	var HelloButton = function(context) {
-		var ui = $.summernote.ui;
+  var HelloButton = function(context) {
+    var ui = $.summernote.ui;
 
-		// create button
-		var button = ui.button({
-			contents: '<i class="fa fa-child"/> Summarize',
-			tooltip: 'Summarize',
-			click: function() {
-				// invoke insertText method with 'hello' on editor module.
-				var html = $('#summernote').summernote('code');
-				socket.emit('summarize', html);
-				// console.log($(".note-editable").text());	
+    // create button
+    var button = ui.button({
+      contents: '<i class="fa fa-child"/> Summarize',
+      tooltip: 'Summarize',
+      click: function() {
+        // invoke insertText method with 'hello' on editor module.
+        var html = $('#summernote').summernote('code');
+        socket.emit('summarize', html);
+        // console.log($(".note-editable").text());
 
+        $('#myModal').modal('show');
+        // context.invoke('editor.insertText', 'hello');
+      },
+    });
 
+    return button.render(); // return button as jquery object
+  };
 
-				$('#myModal').modal('show');
-				// context.invoke('editor.insertText', 'hello');
-			}
-		});
+  $('#summernote').summernote({
+    height: 300, // set editor height
+    // minHeight: null, // set minimum height of editor
+    maxHeight: null, // set maximum height of editor
+    focus: true,
+    hint: {
+      words: ['apple', 'orange', 'watermelon', 'lemon', 'arnold'],
+      match: /\b(\w{1,})$/,
+      search: function(keyword, callback) {
+        var isUpperCase = keyword.charAt(0) == keyword.charAt(0).toUpperCase();
 
-		return button.render(); // return button as jquery object
-	}
+        socket.emit('suggestion', {
+          prefix: keyword.toLowerCase(),
+          topic: topic,
+        });
 
+        var self = this;
+        socket.on('suggestion', function(wordList) {
+          // console.log(wordList);
+          var words = wordList.map(function(ea) {
+            return isUpperCase ? capitalizeFirstLetter(ea.Word) : ea.Word;
+          });
+          // console.log(words);
+          callback(
+            $.grep(words, function(item) {
+              return item.startsWith(keyword);
+            }),
+          );
+        });
+      },
+    },
+    toolbar: [
+      ['style', ['style']],
+      ['font', ['bold', 'italic', 'underline', 'clear']],
+      ['fontname', ['fontname']],
+      ['color', ['color']],
+      ['para', ['ul', 'ol', 'paragraph']],
+      ['height', ['height']],
+      ['table', ['table']],
+      ['insert', ['media', 'link', 'hr']],
+      ['view', ['fullscreen', 'codeview']],
+      ['mybutton', ['hello']],
+      ['help', ['help']],
+    ],
 
+    buttons: {
+      hello: HelloButton,
+    },
+  });
 
-	$('#summernote').summernote({
-		height: 300, // set editor height
-		// minHeight: null, // set minimum height of editor
-		maxHeight: null, // set maximum height of editor
-		focus: true,
-		hint: {
-			words: ['apple', 'orange', 'watermelon', 'lemon', 'arnold'],
-			match: /\b(\w{1,})$/,
-			search: function(keyword, callback) {
+  $('#summernote').summernote('fullscreen.toggle');
+  $('#summernote').summernote('code', localStorage.getItem('code'));
 
-				var isUpperCase = (keyword.charAt(0) == keyword.charAt(0).toUpperCase());
+  // summernote.change
+  $('#summernote').on('summernote.change', function(we, contents, $editable) {
+    var code = $('#summernote').summernote('code');
+    localStorage.setItem('code', code);
+  });
 
-				socket.emit('suggestion', {
-					prefix: keyword.toLowerCase(),
-					topic: topic
-				})
+  document.body.addEventListener('keydown', function(e) {
+    var text = $('.note-editable').text();
 
-				var self = this;
-				socket.on('suggestion', function(wordList) {
-					// console.log(wordList);
-					var words = wordList.map(function(ea) {
+    if (e.keyCode === 32 || e.keyCode === 13) {
+      // e.preventDefault()
 
-							return isUpperCase ? capitalizeFirstLetter(ea.Word) : ea.Word
-						})
-						// console.log(words);
-					callback($.grep(words, function(item) {
-						return item.startsWith(keyword);
-					}));
-				})
+      // console.log($("#summernote").code());
+      // console.log(lastWord);
 
-			},
+      axios
+        .post('http://localhost:8080/classifier', text)
+        .then(function(response) {
+          // console.log(response.data);
+          topic = response.data;
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    }
 
-		},
-		toolbar: [
-			['style', ['style']],
-			['font', ['bold', 'italic', 'underline', 'clear']],
-			['fontname', ['fontname']],
-			['color', ['color']],
-			['para', ['ul', 'ol', 'paragraph']],
-			['height', ['height']],
-			['table', ['table']],
-			['insert', ['media', 'link', 'hr']],
-			['view', ['fullscreen', 'codeview']],
-			['mybutton', ['hello']],
-			['help', ['help']],
+    // If Control or Command key is pressed and the enter key is pressed run auto-complete-follower function.
+    // 13 is the key code for enter.
+    if ((event.ctrlKey || event.metaKey) && event.which == 13) {
+      var regex = /\w+/g;
+      var words = text.match(regex);
+      var lastWord = words[words.length - 1];
 
-		],
+      console.log(lastWord);
 
-		buttons: {
-			hello: HelloButton
-		}
-	});
-
-	$("#summernote").summernote("fullscreen.toggle");
-	$('#summernote').summernote('code', localStorage.getItem('code'))
-
-	// summernote.change
-	$('#summernote').on('summernote.change', function(we, contents, $editable) {
-	  	var code = $('#summernote').summernote('code');
-		localStorage.setItem("code", code);
-	});
-
-	document.body.addEventListener('keydown', function(e) {
-		var text = $(".note-editable").text();
-		
-
-		if (e.keyCode === 32 || e.keyCode === 13) {
-			// e.preventDefault()
-
-			// console.log($("#summernote").code());
-
-
-
-			// console.log(lastWord);
-
-			axios.post('http://localhost:8080/classifier', text)
-				.then(function(response) {
-					// console.log(response.data);
-					topic = response.data;
-				})
-				.catch(function(error) {
-					console.log(error);
-				});
-		}
-
-		if ((event.ctrlKey || event.metaKey) && event.which == 32) {
-
-			var regex = /\w+/g;
-			var words = text.match(regex)
-			var lastWord = words[words.length - 1];
-
-			// console.log(lastWord);
-
-			socket.emit('follower', {
-				preword: lastWord.toLowerCase(),
-				topic: topic
-			})
-
-
-
-		}
-	})
+      socket.emit('follower', {
+        preword: lastWord.toLowerCase(),
+        topic: topic,
+      });
+    }
+  });
 });
-
 
 // Putting the socket receive function outside of the document event works!!!
 socket.on('follower', function(word) {
-	if (word) {
-		$('#summernote').summernote('insertText', word[0].Follower);
-	}
-})
+  if (word) {
+    $('#summernote').summernote('insertText', word[0].Follower);
+  }
+});
 
 socket.on('summarize', function(data) {
-	console.log(data.keyWords);
-	$("#summary").html(data.summary);
-	$("#contentLength").text(data.contentLength);
-	$("#summaryLength").text(data.summaryLength);
-	$("#summaryRatio").text(data.summaryRatio.toFixed(2) + '%')
-	$("#keyWords").html("");
+  console.log(data.keyWords);
+  $('#summary').html(data.summary);
+  $('#contentLength').text(data.contentLength);
+  $('#summaryLength').text(data.summaryLength);
+  $('#summaryRatio').text(data.summaryRatio.toFixed(2) + '%');
+  $('#keyWords').html('');
 
-	data.keyWords.forEach(function(keyWord) {
-		$("#keyWords").append("<span>" + keyWord + "</span>")		
-	})
-})
+  data.keyWords.forEach(function(keyWord) {
+    $('#keyWords').append('<span>' + keyWord + '</span>');
+  });
+});
