@@ -1,21 +1,23 @@
-// const url = "http://localhost:3000";
-const url = "http://textmaster-server.herokuapp.com";
-const socket = io(url);
+// const socketUrl = "http://localhost:3000";
+// const classifierUrl = 'http://localhost:8080/classifier';
+const socketUrl = 'http://textmaster-server.herokuapp.com';
+const classifierUrl = 'http://textmaster-classifier.herokuapp.com/classifier';
+const socket = io(socketUrl);
 var topic = 'society';
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-$(document).ready(function () {
-  var HelloButton = function (context) {
+$(document).ready(function() {
+  var HelloButton = function(context) {
     var ui = $.summernote.ui;
 
     // create button
     var button = ui.button({
       contents: '<i class="fa fa-child"/> Summarize',
       tooltip: 'Summarize',
-      click: function () {
+      click: function() {
         // invoke insertText method with 'hello' on editor module.
         var html = $('#summernote').summernote('code');
         socket.emit('summarize', html);
@@ -37,7 +39,7 @@ $(document).ready(function () {
     hint: {
       words: ['apple', 'orange', 'watermelon', 'lemon', 'arnold'],
       match: /\b(\w{1,})$/,
-      search: function (keyword, callback) {
+      search: function(keyword, callback) {
         var isUpperCase = keyword.charAt(0) == keyword.charAt(0).toUpperCase();
 
         socket.emit('suggestion', {
@@ -46,14 +48,14 @@ $(document).ready(function () {
         });
 
         var self = this;
-        socket.on('suggestion', function (wordList) {
+        socket.on('suggestion', function(wordList) {
           console.log(wordList);
-          var words = wordList.map(function (ea) {
+          var words = wordList.map(function(ea) {
             return isUpperCase ? capitalizeFirstLetter(ea.Word) : ea.Word;
           });
           // console.log(words);
           callback(
-            $.grep(words, function (item) {
+            $.grep(words, function(item) {
               return item.startsWith(keyword);
             }),
           );
@@ -83,12 +85,12 @@ $(document).ready(function () {
   $('#summernote').summernote('code', localStorage.getItem('code'));
 
   // summernote.change
-  $('#summernote').on('summernote.change', function (we, contents, $editable) {
+  $('#summernote').on('summernote.change', function(we, contents, $editable) {
     var code = $('#summernote').summernote('code');
     localStorage.setItem('code', code);
   });
 
-  document.body.addEventListener('keydown', function (e) {
+  document.body.addEventListener('keydown', function(e) {
     var text = $('.note-editable').text();
 
     if (e.keyCode === 32 || e.keyCode === 13) {
@@ -98,12 +100,12 @@ $(document).ready(function () {
       // console.log(lastWord);
 
       axios
-        .post('http://localhost:8080/classifier', text)
-        .then(function (response) {
+        .post(classifierUrl, text)
+        .then(function(response) {
           // console.log(response.data);
           topic = response.data;
         })
-        .catch(function (error) {
+        .catch(function(error) {
           console.log(error);
         });
     }
@@ -126,13 +128,13 @@ $(document).ready(function () {
 });
 
 // Putting the socket receive function outside of the document event works!!!
-socket.on('follower', function (word) {
+socket.on('follower', function(word) {
   if (word) {
     $('#summernote').summernote('insertText', word[0].Follower);
   }
 });
 
-socket.on('summarize', function (data) {
+socket.on('summarize', function(data) {
   console.log(data.keyWords);
   $('#summary').html(data.summary);
   $('#contentLength').text(data.contentLength);
@@ -140,7 +142,7 @@ socket.on('summarize', function (data) {
   $('#summaryRatio').text(data.summaryRatio.toFixed(2) + '%');
   $('#keyWords').html('');
 
-  data.keyWords.forEach(function (keyWord) {
+  data.keyWords.forEach(function(keyWord) {
     $('#keyWords').append('<span>' + keyWord + '</span>');
   });
 });
