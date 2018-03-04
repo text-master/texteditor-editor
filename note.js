@@ -49,7 +49,6 @@ $(document).ready(function() {
 
         var self = this;
         socket.on('suggestion', function(wordList) {
-          console.log(wordList);
           var words = wordList.map(function(ea) {
             return isUpperCase ? capitalizeFirstLetter(ea.Word) : ea.Word;
           });
