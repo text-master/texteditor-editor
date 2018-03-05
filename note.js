@@ -1,6 +1,6 @@
-// const socketUrl = "http://localhost:3000";
+const socketUrl = "http://localhost:3000";
 // const classifierUrl = 'http://localhost:8080/classifier';
-const socketUrl = 'http://textmaster-server.herokuapp.com';
+// const socketUrl = 'http://textmaster-server.herokuapp.com';
 const classifierUrl = 'http://textmaster-classifier.herokuapp.com/classifier';
 const socket = io(socketUrl);
 var topic = 'society';
@@ -19,9 +19,11 @@ $(document).ready(function() {
       tooltip: 'Summarize',
       click: function() {
         // invoke insertText method with 'hello' on editor module.
-        var html = $('#summernote').summernote('code');
-        socket.emit('summarize', html);
-        // console.log($(".note-editable").text());
+        var htmlContent = $('#summernote').summernote('code');
+        var plainText = $(htmlContent).text();
+        // socket.emit('summarize', plainText);
+        socket.emit('summarize', htmlContent);
+        console.log(htmlContent)
 
         $('#myModal').modal('show');
         // context.invoke('editor.insertText', 'hello');
@@ -134,14 +136,14 @@ socket.on('follower', function(word) {
 });
 
 socket.on('summarize', function(data) {
-  console.log(data.keyWords);
+  console.log(data.keywords);
   $('#summary').html(data.summary);
   $('#contentLength').text(data.contentLength);
   $('#summaryLength').text(data.summaryLength);
   $('#summaryRatio').text(data.summaryRatio.toFixed(2) + '%');
   $('#keyWords').html('');
 
-  data.keyWords.forEach(function(keyWord) {
+  data.keywords.forEach(function(keyWord) {
     $('#keyWords').append('<span>' + keyWord + '</span>');
   });
 });
